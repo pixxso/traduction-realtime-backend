@@ -2,56 +2,37 @@ const express = require("express");
 const basicAuth = require("express-basic-auth");
 const fs = require("fs");
 const path = require("path");
-const app = express();
-const PORT = 3000;
+const app = express(), PORT = 3000;
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public")); // Optionnel si tu mets tes fichiers html là
+app.use(express.static("public"));
 
-// 🔐 Auth pour accéder à /admin
-app.use("/admin", basicAuth({
-  users: { "manar": "secret123" }, // identifiant : manar / mot de passe : secret123
-  challenge: true,
-  realm: 'Zone privée'
-}));
+app.use("/admin", basicAuth({ users:{ manar: "secret123" }, challenge:true, realm:'Zone privée' }));
 
-// 📄 Voir les réservations (protégé)
 app.get("/admin", (req, res) => {
-  const filePath = path.join(__dirname, "reservations.json");
-  fs.readFile(filePath, "utf8", (err, data) => {
-    if (err) return res.status(500).send("Erreur lecture fichier.");
-    const reservations = JSON.parse(data);
-    let html = `<h2>📅 Réservations reçues</h2><ul>`;
-    for (const r of reservations) {
-      html += `<li><strong>${r.specialty}</strong> – ${r.date} à ${r.time}<br>
-      📧 ${r.email} | 📱 ${r.phone}</li><hr>`;
-    }
-    html += `</ul>`;
-    res.send(html);
-  });
+  const data = fs.existsSync("reservations.json") ? JSON.parse(fs.readFileSync("reservations.json","utf8")) : [];
+  res.send(`
+  <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Admin Réservations</title>
+     <link rel="stylesheet" href="/css/style.css"><style>
+     table{width:100%;border-collapse:collapse;margin:2rem auto;}
+     th,td{padding:1rem;border-bottom:1px solid #ddd;}
+     th{background:#0d47a1;color:#fff;}
+     tr:hover{background:#f1f1f1;}body{padding:2rem;font-family:'Segoe UI',sans-serif;}
+     </style></head><body>
+     <h2 style="text-align:center;color:#0d47a1;">📋 Réservations reçues</h2>
+     <table><thead><tr><th>Date</th><th>Heure</th><th>Domaine</th><th>Email</th><th>Téléphone</th></tr></thead><tbody>
+     ${data.map(r=>`<tr><td>${r.date}</td><td>${r.time}</td><td>${r.specialty}</td><td>${r.email}</td><td>${r.phone}</td></tr>`).join('')}
+     </tbody></table></body></html>
+  `);
 });
 
-// 💾 API pour enregistrer une réservation
-app.post("/api/reservations", (req, res) => {
+app.post("/api/reservations", (req,res) => {
   const { date, time, specialty, email, phone } = req.body;
-  if (!date || !time || !specialty || !email || !phone)
-    return res.status(400).send("Champs requis manquants");
-
-  const newRes = { date, time, specialty, email, phone };
-  const filePath = path.join(__dirname, "reservations.json");
-
-  fs.readFile(filePath, "utf8", (err, data) => {
-    let reservations = [];
-    if (!err && data) reservations = JSON.parse(data);
-    reservations.push(newRes);
-    fs.writeFile(filePath, JSON.stringify(reservations, null, 2), (err) => {
-      if (err) return res.status(500).send("Erreur d'enregistrement");
-      res.send("✅ Réservation enregistrée !");
-    });
-  });
+  if (![date,time,specialty,email,phone].every(Boolean)) return res.status(400).send("Champs requis manquants");
+  const arr = fs.existsSync("reservations.json") ? JSON.parse(fs.readFileSync("reservations.json","utf8")) : [];
+  arr.push({date, time, specialty, email, phone});
+  fs.writeFileSync("reservations.json", JSON.stringify(arr,null,2));
+  res.send("✅ Réservation enregistrée !");
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Serveur lancé sur http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`✅ Serveur: http://localhost:${PORT}`));
