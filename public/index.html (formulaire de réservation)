@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Réservation</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, textarea { display: block; margin: 10px 0; width: 300px; }
+  </style>
+</head>
+<body>
+  <h1>Faire une réservation</h1>
+  <form id="reservationForm">
+    <input type="text" name="name" placeholder="Nom complet" required />
+    <input type="email" name="email" placeholder="Email" required />
+    <input type="date" name="date" required />
+    <textarea name="message" placeholder="Message ou demande spécifique" rows="4"></textarea>
+    <button type="submit">Envoyer</button>
+  </form>
+
+  <script>
+    const form = document.getElementById("reservationForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      const res = await fetch("/api/reserver", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        alert("Réservation envoyée !");
+        form.reset();
+      } else {
+        alert("Erreur lors de l’envoi.");
+      }
+    });
+  </script>
+</body>
+</html>
