@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Essayer – Rword Manar</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <header>…</header>
+  <main>
+    <section class="features">
+      <h1>🎯 Essayez notre service</h1>
+      <form id="try-form">
+        <label>Source :</label>
+        <select id="from">
+          <option value="fr">Français</option>
+          <option value="en">Anglais</option>
+          <option value="ar">Arabe</option>
+        </select>
+        <label>Cible :</label>
+        <select id="to">
+          <option value="en">Anglais</option>
+          <option value="fr">Français</option>
+          <option value="ar">Arabe</option>
+        </select>
+        <label>Texte (max 300) :</label>
+        <textarea id="input-text" maxlength="300" rows="4"></textarea>
+        <button type="submit" class="btn">Traduire</button>
+      </form>
+      <div id="translation-output"></div>
+    </section>
+  </main>
+  <footer>…</footer>
+
+  <script>
+    document.getElementById('try-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const input = document.getElementById('input-text').value.trim();
+      const from = document.getElementById('from').value;
+      const to = document.getElementById('to').value;
+      const output = document.getElementById('translation-output');
+
+      if (!input) {
+        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte.</p>";
+        return;
+      }
+
+      output.innerHTML = "<p>⏳ Traduction en cours…</p>";
+
+      try {
+        const res = await fetch("https://libretranslate.de/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            q: input,
+            source: from,
+            target: to,
+            format: "text"
+          })
+        });
+        if (!res.ok) throw new Error("API error " + res.status);
+        const data = await res.json();
+        output.innerHTML = `
+          <h3>Résultat (${from.toUpperCase()}→${to.toUpperCase()}) :</h3>
+          <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
+            ${data.translatedText}
+          </p>
+          <p><a href="services.html" class="btn">Réservez maintenant</a></p>`;
+      } catch (err) {
+        console.error("Erreur traduction:", err);
+        output.innerHTML = "<p style='color:red;'>Erreur lors de la traduction. Réessayez s’il te plaît.</p>";
+      }
+    });
+  </script>
+</body>
+</html>
