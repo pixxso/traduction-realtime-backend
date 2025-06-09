@@ -1,0 +1,54 @@
+const express = require("express");
+const basicAuth = require("express-basic-auth");
+const fs = require("fs");
+const path = require("path");
+const app = express();
+const PORT = 3000;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public")); // Pour servir les fichiers frontend si nécessaire
+
+// 🔐 Authentification basique pour /admin
+app.use("/admin", basicAuth({
+  users: { "admin": "motdepasse123" }, // 🔐 À changer pour plus de sécurité
+  challenge: true,
+  realm: 'Admin Zone',
+}));
+
+// 📄 Route protégée /admin pour afficher les réservations
+app.get("/admin", (req, res) => {
+  const filePath = path.join(__dirname, "reservations.json");
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) return res.status(500).send("Erreur lecture des données.");
+    const reservations = JSON.parse(data);
+    let html = `
+      <h2>Réservations</h2>
+      <ul>
+        ${reservations.map(r => `<li><strong>${r.specialty}</strong> – ${r.date} à ${r.time}</li>`).join("")}
+      </ul>`;
+    res.send(html);
+  });
+});
+
+// 📥 API pour enregistrer une réservation
+app.post("/api/reservations", (req, res) => {
+  const { date, time, specialty } = req.body;
+  if (!date || !time || !specialty) return res.status(400).send("Données manquantes");
+
+  const newReservation = { date, time, specialty };
+  const filePath = path.join(__dirname, "reservations.json");
+
+  fs.readFile(filePath, "utf8", (err, data) => {
+    const reservations = err ? [] : JSON.parse(data);
+    reservations.push(newReservation);
+    fs.writeFile(filePath, JSON.stringify(reservations, null, 2), (err) => {
+      if (err) return res.status(500).send("Erreur sauvegarde");
+      res.status(200).send("Réservation enregistrée !");
+    });
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`✅ Serveur en écoute sur http://localhost:${PORT}`);
+});
