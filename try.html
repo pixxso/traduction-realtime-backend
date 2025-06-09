@@ -2,77 +2,97 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Essayer – Rword Manar</title>
-  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <header>…</header>
+  <header>
+    <nav class="navbar">
+      <div class="logo">Rword Manar</div>
+      <ul class="nav-links">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="about.html">À propos</a></li>
+        <li><a href="services.html">Réserver</a></li>
+        <li><a href="translators.html">Traducteurs</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="try.html" class="active">Essayer</a></li>
+      </ul>
+    </nav>
+  </header>
+
   <main>
     <section class="features">
-      <h1>🎯 Essayez notre service</h1>
+      <h1>🎯 Essayez notre service gratuitement</h1>
+      <p>Traduisez un court texte (FR ↔ EN) avec la qualité de DeepL.</p>
+
       <form id="try-form">
-        <label>Source :</label>
+        <label for="from">Langue source :</label>
         <select id="from">
-          <option value="fr">Français</option>
-          <option value="en">Anglais</option>
-          <option value="ar">Arabe</option>
+          <option value="FR">Français</option>
+          <option value="EN">Anglais</option>
         </select>
-        <label>Cible :</label>
+
+        <label for="to">Langue cible :</label>
         <select id="to">
-          <option value="en">Anglais</option>
-          <option value="fr">Français</option>
-          <option value="ar">Arabe</option>
-<select id="from">
-  <option value="FR">Français</option>
-  <option value="EN">Anglais</option>
-</select>
-<select id="to">
-  <option value="EN">Anglais</option>
-  <option value="FR">Français</option>
-</select>
+          <option value="EN">Anglais</option>
+          <option value="FR">Français</option>
+        </select>
 
+        <label for="input-text">Texte à traduire :</label>
+        <textarea id="input-text" maxlength="300" rows="4" placeholder="Entrez votre texte ici..."></textarea>
+
+        <p><small>Max 300 caractères</small></p>
+        <button type="submit" class="btn">Traduire</button>
+      </form>
+
+      <div id="translation-output" style="margin-top: 2rem;"></div>
+    </section>
   </main>
-  <footer>…</footer>
 
+  <footer>
+    <p>&copy; 2025 Rword Manar. Tous droits réservés.</p>
+  </footer>
+
+  <!-- ✅ SCRIPT INTÉGRÉ : API DeepL -->
   <script>
-document.getElementById('try-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const input = document.getElementById('input-text').value.trim();
-  const from = document.getElementById('from').value.toUpperCase();
-  const to = document.getElementById('to').value.toUpperCase();
-  const output = document.getElementById('translation-output');
+    document.getElementById('try-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const input = document.getElementById('input-text').value.trim();
+      const from = document.getElementById('from').value.toUpperCase();
+      const to = document.getElementById('to').value.toUpperCase();
+      const output = document.getElementById('translation-output');
 
-  if (!input) {
-    output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte à traduire.</p>";
-    return;
-  }
+      if (!input) {
+        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte à traduire.</p>";
+        return;
+      }
 
-  output.innerHTML = "<p>⏳ Traduction en cours via DeepL...</p>";
+      output.innerHTML = "<p>⏳ Traduction en cours via DeepL...</p>";
 
-  try {
-    const res = await fetch("https://api-free.deepl.com/v2/translate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: `auth_key=1517f66e-eab7-4255-bbbd-af1ee1890042:fx&text=${encodeURIComponent(input)}&source_lang=${from}&target_lang=${to}`
+      try {
+        const res = await fetch("https://api-free.deepl.com/v2/translate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: `auth_key=1517f66e-eab7-4255-bbbd-af1ee1890042:fx&text=${encodeURIComponent(input)}&source_lang=${from}&target_lang=${to}`
+        });
+
+        if (!res.ok) throw new Error("API DeepL Error");
+
+        const data = await res.json();
+        output.innerHTML = `
+          <h3>Traduction (${from} → ${to}) :</h3>
+          <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
+            ${data.translations[0].text}
+          </p>
+          <p><a href="services.html" class="btn">Réservez une vraie session</a></p>`;
+      } catch (err) {
+        console.error(err);
+        output.innerHTML = "<p style='color:red;'>Erreur lors de la traduction DeepL. Veuillez réessayer.</p>";
+      }
     });
-
-    if (!res.ok) throw new Error("API DeepL Error");
-
-    const data = await res.json();
-    output.innerHTML = `
-      <h3>Traduction (${from} → ${to}) :</h3>
-      <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
-        ${data.translations[0].text}
-      </p>
-      <p><a href="services.html" class="btn">Réservez une vraie session</a></p>`;
-  } catch (err) {
-    console.error(err);
-    output.innerHTML = "<p style='color:red;'>Erreur lors de la traduction DeepL. Veuillez réessayer.</p>";
-  }
-});
-</script>
+  </script>
 </body>
 </html>
