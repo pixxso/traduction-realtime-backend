@@ -32,3 +32,26 @@ document.getElementById('booking-form').addEventListener('submit', e => {
   <button type="submit" class="btn">Réserver</button>
 </form>
 <p id="confirmation-message"></p>
+<script>
+document.getElementById('booking-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const date = document.getElementById('date').value;
+  const time = document.getElementById('time').value;
+  const specialty = document.getElementById('specialty').value;
+  const email = document.getElementById('email').value;
+  const phone = document.getElementById('phone').value;
+
+  fetch('/api/reservations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ date, time, specialty, email, phone })
+  })
+  .then(res => res.text())
+  .then(msg => {
+    document.getElementById('confirmation-message').textContent = msg;
+  })
+  .catch(() => {
+    document.getElementById('confirmation-message').textContent = "Erreur lors de la réservation.";
+  });
+});
+</script>
