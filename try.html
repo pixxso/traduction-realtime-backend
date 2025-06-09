@@ -23,7 +23,7 @@
 
   <main>
     <section class="features">
-      <h1>🎯 Essayez notre service</h1>
+      <h1>🎯 Essayez notre service gratuitement</h1>
       <form id="try-form">
         <label for="specialty">Spécialité :</label>
         <select id="specialty" required>
@@ -59,7 +59,7 @@
     <p>&copy; 2025 Rword Manar. Tous droits réservés.</p>
   </footer>
 
-  <!-- ✅ SCRIPT DeepL avec spécialité + clé mise à jour -->
+  <!-- SCRIPT DE TRADUCTION via proxy DeepL -->
   <script>
     document.getElementById('try-form').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -71,46 +71,44 @@
       const output = document.getElementById('translation-output');
 
       if (!input) {
-        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte.</p>";
+        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte à traduire.</p>";
         return;
       }
 
-      output.innerHTML = "<p>⏳ Traduction en cours via DeepL...</p>";
+      output.innerHTML = "<p>⏳ Traduction en cours...</p>";
 
       try {
-        const formData = new URLSearchParams();
-        formData.append("auth_key", "bd2847d8-5a58-4d4b-8cf7-5a3eda9ec670:fx");
-        formData.append("text", input);
-        formData.append("source_lang", from);
-        formData.append("target_lang", to);
-
-        const res = await fetch("https://api-free.deepl.com/v2/translate", {
+        const res = await fetch("https://deeply-proxy-rword-manar.onrender.com/translate", {
           method: "POST",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
+            "Content-Type": "application/json"
           },
-          body: formData.toString()
+          body: JSON.stringify({
+            text: input,
+            source_lang: from,
+            target_lang: to
+          })
         });
 
         if (!res.ok) {
           const errorText = await res.text();
-          console.error("Erreur API :", errorText);
-          throw new Error("Erreur DeepL : " + res.status);
+          throw new Error("Erreur proxy : " + errorText);
         }
 
         const data = await res.json();
 
         output.innerHTML = `
-          <h3>Résultat (${from} → ${to}) – Domaine : ${specialty}</h3>
+          <h3>Traduction (${from} → ${to}) – Spécialité : ${specialty}</h3>
           <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
             ${data.translations[0].text}
           </p>
           <p><a href="services.html" class="btn">Réservez une session ${specialty.toLowerCase()}</a></p>`;
       } catch (err) {
         console.error("Erreur attrapée :", err);
-        output.innerHTML = "<p style='color:red;'>❌ Une erreur est survenue. Vérifie ta connexion ou réessaie plus tard.</p>";
+        output.innerHTML = "<p style='color:red;'>❌ Erreur de traduction. Vérifiez votre connexion ou réessayez.</p>";
       }
     });
   </script>
+
 </body>
 </html>
