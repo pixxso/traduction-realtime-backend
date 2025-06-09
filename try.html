@@ -1,49 +1,116 @@
-<script>
-  document.getElementById('try-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Essayer – Rword Manar</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">Rword Manar</div>
+      <ul class="nav-links">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="about.html">À propos</a></li>
+        <li><a href="services.html">Réserver</a></li>
+        <li><a href="translators.html">Traducteurs</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="try.html" class="active">Essayer</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    const input = document.getElementById('input-text').value.trim();
-    const from = document.getElementById('from').value;
-    const to = document.getElementById('to').value;
-    const specialty = document.getElementById('specialty').value;
-    const output = document.getElementById('translation-output');
+  <main>
+    <section class="features">
+      <h1>🎯 Essayez notre service</h1>
+      <form id="try-form">
+        <label for="specialty">Spécialité :</label>
+        <select id="specialty" required>
+          <option value="Juridique">Juridique</option>
+          <option value="Médical">Médical</option>
+          <option value="Administratif">Administratif</option>
+        </select>
 
-    if (!input) {
-      output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte à traduire.</p>";
-      return;
-    }
+        <label for="from">Langue source :</label>
+        <select id="from">
+          <option value="FR">Français</option>
+          <option value="EN">Anglais</option>
+        </select>
 
-    output.innerHTML = "<p>⏳ Traduction en cours...</p>";
+        <label for="to">Langue cible :</label>
+        <select id="to">
+          <option value="EN">Anglais</option>
+          <option value="FR">Français</option>
+        </select>
 
-    try {
-      const res = await fetch("https://rword-deepl-proxy.onrender.com/translate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          text: input,
-          source_lang: from,
-          target_lang: to
-        })
-      });
+        <label for="input-text">Texte à traduire :</label>
+        <textarea id="input-text" maxlength="300" rows="4" placeholder="Entrez votre texte ici..." required></textarea>
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error("Erreur proxy : " + errorText);
+        <p><small>Max 300 caractères</small></p>
+        <button type="submit" class="btn">Traduire</button>
+      </form>
+
+      <div id="translation-output" style="margin-top: 2rem;"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Rword Manar. Tous droits réservés.</p>
+  </footer>
+
+  <!-- ✅ SCRIPT DeepL avec spécialité + clé mise à jour -->
+  <script>
+    document.getElementById('try-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const input = document.getElementById('input-text').value.trim();
+      const from = document.getElementById('from').value;
+      const to = document.getElementById('to').value;
+      const specialty = document.getElementById('specialty').value;
+      const output = document.getElementById('translation-output');
+
+      if (!input) {
+        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte.</p>";
+        return;
       }
 
-      const data = await res.json();
+      output.innerHTML = "<p>⏳ Traduction en cours via DeepL...</p>";
 
-      output.innerHTML = `
-        <h3>Traduction (${from} → ${to}) – Spécialité : ${specialty}</h3>
-        <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
-          ${data.translations[0].text}
-        </p>
-        <p><a href="services.html" class="btn">Réservez une session ${specialty.toLowerCase()}</a></p>`;
-    } catch (err) {
-      console.error("Erreur attrapée :", err);
-      output.innerHTML = "<p style='color:red;'>❌ La traduction a échoué. Essayez à nouveau dans quelques instants.</p>";
-    }
-  });
-</script>
+      try {
+        const formData = new URLSearchParams();
+        formData.append("auth_key", "bd2847d8-5a58-4d4b-8cf7-5a3eda9ec670:fx");
+        formData.append("text", input);
+        formData.append("source_lang", from);
+        formData.append("target_lang", to);
+
+        const res = await fetch("https://api-free.deepl.com/v2/translate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: formData.toString()
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("Erreur API :", errorText);
+          throw new Error("Erreur DeepL : " + res.status);
+        }
+
+        const data = await res.json();
+
+        output.innerHTML = `
+          <h3>Résultat (${from} → ${to}) – Domaine : ${specialty}</h3>
+          <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
+            ${data.translations[0].text}
+          </p>
+          <p><a href="services.html" class="btn">Réservez une session ${specialty.toLowerCase()}</a></p>`;
+      } catch (err) {
+        console.error("Erreur attrapée :", err);
+        output.innerHTML = "<p style='color:red;'>❌ Une erreur est survenue. Vérifie ta connexion ou réessaie plus tard.</p>";
+      }
+    });
+  </script>
+</body>
+</html>
