@@ -34,44 +34,43 @@
   <footer>…</footer>
 
   <script>
-    document.getElementById('try-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const input = document.getElementById('input-text').value.trim();
-      const from = document.getElementById('from').value;
-      const to = document.getElementById('to').value;
-      const output = document.getElementById('translation-output');
+document.getElementById('try-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const input = document.getElementById('input-text').value.trim();
+  const from = document.getElementById('from').value.toUpperCase();
+  const to = document.getElementById('to').value.toUpperCase();
+  const output = document.getElementById('translation-output');
 
-      if (!input) {
-        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte.</p>";
-        return;
-      }
+  if (!input) {
+    output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte à traduire.</p>";
+    return;
+  }
 
-      output.innerHTML = "<p>⏳ Traduction en cours…</p>";
+  output.innerHTML = "<p>⏳ Traduction en cours via DeepL...</p>";
 
-      try {
-        const res = await fetch("https://libretranslate.de/translate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            q: input,
-            source: from,
-            target: to,
-            format: "text"
-          })
-        });
-        if (!res.ok) throw new Error("API error " + res.status);
-        const data = await res.json();
-        output.innerHTML = `
-          <h3>Résultat (${from.toUpperCase()}→${to.toUpperCase()}) :</h3>
-          <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
-            ${data.translatedText}
-          </p>
-          <p><a href="services.html" class="btn">Réservez maintenant</a></p>`;
-      } catch (err) {
-        console.error("Erreur traduction:", err);
-        output.innerHTML = "<p style='color:red;'>Erreur lors de la traduction. Réessayez s’il te plaît.</p>";
-      }
+  try {
+    const res = await fetch("https://api-free.deepl.com/v2/translate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `auth_key=1517f66e-eab7-4255-bbbd-af1ee1890042:fx&text=${encodeURIComponent(input)}&source_lang=${from}&target_lang=${to}`
     });
-  </script>
+
+    if (!res.ok) throw new Error("API DeepL Error");
+
+    const data = await res.json();
+    output.innerHTML = `
+      <h3>Traduction (${from} → ${to}) :</h3>
+      <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
+        ${data.translations[0].text}
+      </p>
+      <p><a href="services.html" class="btn">Réservez une vraie session</a></p>`;
+  } catch (err) {
+    console.error(err);
+    output.innerHTML = "<p style='color:red;'>Erreur lors de la traduction DeepL. Veuillez réessayer.</p>";
+  }
+});
+</script>
 </body>
 </html>
