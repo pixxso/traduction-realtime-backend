@@ -26,3 +26,65 @@
   font-size: 1rem;
   background: #f9f9f9;
 }
+/* --- Réservation Design --- */
+.reservation-section {
+  background: linear-gradient(to right, #e3f2fd, #ffffff);
+  padding: 3rem 5%;
+}
+
+.reservation-container {
+  max-width: 800px;
+  margin: auto;
+  background-color: #fff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.reservation-info h1 {
+  font-size: 2rem;
+  color: #1976d2;
+  margin-bottom: 1rem;
+}
+
+.reservation-info p {
+  margin-bottom: 2rem;
+  color: #444;
+}
+
+.reservation-form .form-group {
+  margin-bottom: 1.2rem;
+}
+
+.reservation-form label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #0d47a1;
+}
+
+.reservation-form input,
+.reservation-form select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+  }
+}
