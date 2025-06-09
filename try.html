@@ -23,8 +23,8 @@
 
   <main>
     <section class="features">
-      <h1>🎯 Essayez notre service gratuitement</h1>
-      <p>Traduisez un court texte (FR ↔ EN) avec la qualité de DeepL.</p>
+      <h1>🎯 Essayez notre service</h1>
+      <p>Testez la traduction entre le <strong>Français</strong> et l’<strong>Anglais</strong> via DeepL.</p>
 
       <form id="try-form">
         <label for="from">Langue source :</label>
@@ -54,24 +54,25 @@
     <p>&copy; 2025 Rword Manar. Tous droits réservés.</p>
   </footer>
 
-  <!-- ✅ SCRIPT INTÉGRÉ : API DeepL -->
+  <!-- ✅ SCRIPT API DeepL -->
   <script>
     document.getElementById('try-form').addEventListener('submit', async function(e) {
       e.preventDefault();
+
       const input = document.getElementById('input-text').value.trim();
-      const from = document.getElementById('from').value.toUpperCase();
-      const to = document.getElementById('to').value.toUpperCase();
+      const from = document.getElementById('from').value;
+      const to = document.getElementById('to').value;
       const output = document.getElementById('translation-output');
 
       if (!input) {
-        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte à traduire.</p>";
+        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte.</p>";
         return;
       }
 
-      output.innerHTML = "<p>⏳ Traduction en cours via DeepL...</p>";
+      output.innerHTML = "<p>⏳ Traduction en cours...</p>";
 
       try {
-        const res = await fetch("https://api-free.deepl.com/v2/translate", {
+        const response = await fetch("https://api-free.deepl.com/v2/translate", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -79,9 +80,9 @@
           body: `auth_key=1517f66e-eab7-4255-bbbd-af1ee1890042:fx&text=${encodeURIComponent(input)}&source_lang=${from}&target_lang=${to}`
         });
 
-        if (!res.ok) throw new Error("API DeepL Error");
+        if (!response.ok) throw new Error("Erreur API : " + response.status);
 
-        const data = await res.json();
+        const data = await response.json();
         output.innerHTML = `
           <h3>Traduction (${from} → ${to}) :</h3>
           <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
@@ -90,7 +91,7 @@
           <p><a href="services.html" class="btn">Réservez une vraie session</a></p>`;
       } catch (err) {
         console.error(err);
-        output.innerHTML = "<p style='color:red;'>Erreur lors de la traduction DeepL. Veuillez réessayer.</p>";
+        output.innerHTML = "<p style='color:red;'>Erreur pendant la traduction. Veuillez réessayer.</p>";
       }
     });
   </script>
