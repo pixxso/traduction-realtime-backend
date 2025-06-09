@@ -23,10 +23,17 @@
 
   <main>
     <section class="features">
-      <h1>🎯 Essayez notre service</h1>
-      <p>Testez la traduction entre le <strong>Français</strong> et l’<strong>Anglais</strong> via DeepL.</p>
+      <h1>🎯 Essayez notre service gratuitement</h1>
+      <p>Traduisez un court texte (FR ↔ EN) et sélectionnez un domaine spécialisé.</p>
 
       <form id="try-form">
+        <label for="domain">Domaine :</label>
+        <select id="domain">
+          <option value="juridique">Juridique</option>
+          <option value="medical">Médical</option>
+          <option value="administratif">Administratif</option>
+        </select>
+
         <label for="from">Langue source :</label>
         <select id="from">
           <option value="FR">Français</option>
@@ -54,7 +61,7 @@
     <p>&copy; 2025 Rword Manar. Tous droits réservés.</p>
   </footer>
 
-  <!-- ✅ SCRIPT API DeepL -->
+  <!-- ✅ SCRIPT API DeepL AVEC DOMAINE -->
   <script>
     document.getElementById('try-form').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -62,10 +69,11 @@
       const input = document.getElementById('input-text').value.trim();
       const from = document.getElementById('from').value;
       const to = document.getElementById('to').value;
+      const domain = document.getElementById('domain').value;
       const output = document.getElementById('translation-output');
 
       if (!input) {
-        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte.</p>";
+        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte à traduire.</p>";
         return;
       }
 
@@ -84,11 +92,11 @@
 
         const data = await response.json();
         output.innerHTML = `
-          <h3>Traduction (${from} → ${to}) :</h3>
+          <h3>Traduction (${from} → ${to}) – Domaine : ${domain.charAt(0).toUpperCase() + domain.slice(1)}</h3>
           <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
             ${data.translations[0].text}
           </p>
-          <p><a href="services.html" class="btn">Réservez une vraie session</a></p>`;
+          <p><a href="services.html" class="btn">Réservez une session spécialisée</a></p>`;
       } catch (err) {
         console.error(err);
         output.innerHTML = "<p style='color:red;'>Erreur pendant la traduction. Veuillez réessayer.</p>";
