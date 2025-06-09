@@ -1,28 +1,72 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Réserver – Rword Manar</title><link rel="stylesheet" href="css/style.css"></head><body>
-<header>...navbar...</header>
-<section class="features">
-  <h1 style="text-align:center; margin-bottom:2rem;">📅 Réserver une séance</h1>
-  <form id="booking-form">
-    <label for="date">Date :</label><input type="date" id="date" required>
-    <label for="time">Heure :</label><input type="time" id="time" required>
-    <label for="specialty">Domaine :</label><select id="specialty" required><option>Juridique</option><option>Médical</option><option>Administratif</option></select>
-    <label for="email">Adresse email :</label><input type="email" id="email" placeholder="exemple@mail.com" required>
-    <label for="phone">Téléphone :</label><input type="tel" id="phone" placeholder="+213 6xx xx xx xx" required>
-    <button type="submit" class="btn">Réserver maintenant</button>
-    <p id="confirmation-message" style="margin-top:1rem;"></p>
-  </form>
-</section>
-<footer>...footer...</footer>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Réserver – Rword Manar</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">Rword Manar</div>
+      <ul class="nav-links">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="about.html">À propos</a></li>
+        <li><a href="services.html" class="active">Réserver</a></li>
+        <li><a href="translators.html">Traducteurs</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="try.html">Essayer</a></li>
+      </ul>
+    </nav>
+  </header>
 
-<script>
-// Script réservation functionnel
-document.getElementById('booking-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const data = ['date','time','specialty','email','phone'].reduce((o,id)=>{o[id]=document.getElementById(id).value;return o;},{});
-  fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-   .then(res=>res.text()).then(msg=>document.getElementById('confirmation-message').textContent=msg)
-   .catch(()=>document.getElementById('confirmation-message').textContent="Erreur lors de la réservation.");
-});
-</script>
-</body></html>
+  <main>
+    <section class="features">
+      <h1 style="text-align:center; margin-bottom:2rem;">📅 Réserver une séance</h1>
+      <form id="booking-form">
+        <label for="date">Date :</label>
+        <input type="date" id="date" required />
+
+        <label for="time">Heure :</label>
+        <input type="time" id="time" required />
+
+        <label for="specialty">Domaine :</label>
+        <select id="specialty" required>
+          <option value="Juridique">Juridique</option>
+          <option value="Médical">Médical</option>
+          <option value="Administratif">Administratif</option>
+        </select>
+
+        <label for="email">Adresse email :</label>
+        <input type="email" id="email" placeholder="exemple@mail.com" required />
+
+        <label for="phone">Téléphone :</label>
+        <input type="tel" id="phone" placeholder="+213 6xx xx xx xx" required />
+
+        <button type="submit" class="btn">Réserver maintenant</button>
+        <p id="confirmation-message" style="margin-top:1rem;"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Rword Manar. Tous droits réservés.</p>
+  </footer>
+
+  <script>
+    document.getElementById('booking-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const data = ['date','time','specialty','email','phone'].reduce((o,id)=>{o[id]=document.getElementById(id).value;return o;},{});
+      fetch('/api/reservations',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(data)
+      })
+      .then(res=>res.text())
+      .then(msg=>document.getElementById('confirmation-message').textContent=msg)
+      .catch(()=>document.getElementById('confirmation-message').textContent="Erreur lors de la réservation.");
+    });
+  </script>
+</body>
+</html>
