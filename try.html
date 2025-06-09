@@ -23,13 +23,13 @@
 
   <main>
     <section class="features">
-      <h1>🎯 Essayez notre service gratuitement</h1>
+      <h1>🎯 Essayez notre service</h1>
       <form id="try-form">
-        <label for="domain">Domaine :</label>
-        <select id="domain">
-          <option value="juridique">Juridique</option>
-          <option value="medical">Médical</option>
-          <option value="administratif">Administratif</option>
+        <label for="specialty">Spécialité :</label>
+        <select id="specialty" required>
+          <option value="Juridique">Juridique</option>
+          <option value="Médical">Médical</option>
+          <option value="Administratif">Administratif</option>
         </select>
 
         <label for="from">Langue source :</label>
@@ -45,7 +45,7 @@
         </select>
 
         <label for="input-text">Texte à traduire :</label>
-        <textarea id="input-text" maxlength="300" rows="4" placeholder="Entrez votre texte ici..."></textarea>
+        <textarea id="input-text" maxlength="300" rows="4" placeholder="Entrez votre texte ici..." required></textarea>
 
         <p><small>Max 300 caractères</small></p>
         <button type="submit" class="btn">Traduire</button>
@@ -59,6 +59,7 @@
     <p>&copy; 2025 Rword Manar. Tous droits réservés.</p>
   </footer>
 
+  <!-- ✅ SCRIPT DeepL avec spécialité + clé mise à jour -->
   <script>
     document.getElementById('try-form').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -66,16 +67,50 @@
       const input = document.getElementById('input-text').value.trim();
       const from = document.getElementById('from').value;
       const to = document.getElementById('to').value;
-      const domain = document.getElementById('domain').value;
+      const specialty = document.getElementById('specialty').value;
       const output = document.getElementById('translation-output');
 
       if (!input) {
-        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte à traduire.</p>";
+        output.innerHTML = "<p style='color:red;'>Veuillez entrer un texte.</p>";
         return;
       }
 
       output.innerHTML = "<p>⏳ Traduction en cours via DeepL...</p>";
 
       try {
+        const formData = new URLSearchParams();
+        formData.append("auth_key", "bd2847d8-5a58-4d4b-8cf7-5a3eda9ec670:fx");
+        formData.append("text", input);
+        formData.append("source_lang", from);
+        formData.append("target_lang", to);
+
         const res = await fetch("https://api-free.deepl.com/v2/translate", {
-          method
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: formData.toString()
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("Erreur API :", errorText);
+          throw new Error("Erreur DeepL : " + res.status);
+        }
+
+        const data = await res.json();
+
+        output.innerHTML = `
+          <h3>Résultat (${from} → ${to}) – Domaine : ${specialty}</h3>
+          <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
+            ${data.translations[0].text}
+          </p>
+          <p><a href="services.html" class="btn">Réservez une session ${specialty.toLowerCase()}</a></p>`;
+      } catch (err) {
+        console.error("Erreur attrapée :", err);
+        output.innerHTML = "<p style='color:red;'>❌ Une erreur est survenue. Vérifie ta connexion ou réessaie plus tard.</p>";
+      }
+    });
+  </script>
+</body>
+</html>
