@@ -2,9 +2,10 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Essayer – Rword Manar</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
@@ -23,7 +24,7 @@
 
   <main>
     <section class="features">
-      <h1>🎯 Essayez notre service</h1>
+      <h1 style="text-align:center;">🎯 Essayez notre service</h1>
       <form id="try-form">
         <label for="specialty">Spécialité :</label>
         <select id="specialty" required>
@@ -46,12 +47,12 @@
 
         <label for="input-text">Texte à traduire :</label>
         <textarea id="input-text" maxlength="300" rows="4" placeholder="Entrez votre texte ici..." required></textarea>
+        <small>Max 300 caractères</small>
 
-        <p><small>Max 300 caractères</small></p>
         <button type="submit" class="btn">Traduire</button>
       </form>
 
-      <div id="translation-output" style="margin-top: 2rem;"></div>
+      <div id="translation-output"></div>
     </section>
   </main>
 
@@ -59,7 +60,6 @@
     <p>&copy; 2025 Rword Manar. Tous droits réservés.</p>
   </footer>
 
-  <!-- ✅ SCRIPT DeepL avec spécialité + clé mise à jour -->
   <script>
     document.getElementById('try-form').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -86,9 +86,7 @@
 
         const res = await fetch("https://api-free.deepl.com/v2/translate", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: formData.toString()
         });
 
@@ -102,10 +100,10 @@
 
         output.innerHTML = `
           <h3>Résultat (${from} → ${to}) – Domaine : ${specialty}</h3>
-          <p style="background:#e3f2fd;padding:1rem;border-radius:5px;">
-            ${data.translations[0].text}
-          </p>
-          <p><a href="services.html" class="btn">Réservez une session ${specialty.toLowerCase()}</a></p>`;
+          <div id="translation-output">
+            <p>${data.translations[0].text}</p>
+          </div>
+          <a href="services.html" class="btn">Réserver une session ${specialty.toLowerCase()}</a>`;
       } catch (err) {
         console.error("Erreur attrapée :", err);
         output.innerHTML = "<p style='color:red;'>❌ Une erreur est survenue. Vérifie ta connexion ou réessaie plus tard.</p>";
